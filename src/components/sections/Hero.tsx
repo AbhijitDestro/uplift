@@ -38,7 +38,7 @@ export function Hero() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.5, delay: 0.1 }}
-                        className="text-4xl sm:text-5xl lg:text-7xl font-bold tracking-tight mb-6 bg-clip-text text-transparent bg-linear-to-r from-foreground to-foreground/70"
+                        className="text-5xl sm:text-6xl lg:text-8xl font-bold tracking-tight mb-6 bg-clip-text text-transparent bg-linear-to-r from-foreground to-foreground/70"
                     >
                         Land Your First Job <br className="hidden sm:block" />
                         <span className="text-primary">Faster with AI</span>
@@ -92,9 +92,14 @@ export function Hero() {
                         </div>
                     </motion.div>
 
-                    <div className="mt-14 w-full">
-                        <Image src="/images/banner.jpg" alt="banner" width={1500} height={900} className="w-full h-auto object-cover rounded-2xl" />
-                    </div>
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: 0.5 }}
+                        className="mt-14 w-full"
+                    >
+                        <Image src="/images/banner.jpg" alt="banner" width={1600} height={900} className="w-full h-full object-cover rounded-2xl" />
+                    </motion.div>
                 </div>
             </div>
         </section>

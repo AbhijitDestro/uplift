@@ -15,7 +15,6 @@ export default function DashboardLayout({
 
     return (
         <div className="min-h-screen flex bg-background relative overflow-hidden">
-            <Background />
 
             {/* Sidebar */}
             <Sidebar

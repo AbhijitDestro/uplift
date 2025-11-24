@@ -5,9 +5,47 @@ import Link from "next/link";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Bell, Search, Menu, User, LogOut, ChevronDown } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
+import { authClient } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
+import { getUserProfile } from "@/app/actions/profile";
 
 export function DashboardNavbar({ onMenuClick }: { onMenuClick?: () => void }) {
     const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
+    const { data: session } = authClient.useSession();
+    const router = useRouter();
+    const [userImage, setUserImage] = React.useState<string | null>(null);
+
+    React.useEffect(() => {
+        async function fetchUserImage() {
+            if (session?.user?.id) {
+                const data = await getUserProfile();
+                if (data?.image) {
+                    setUserImage(data.image);
+                }
+            }
+        }
+        fetchUserImage();
+
+        const handleProfileUpdate = () => {
+            fetchUserImage();
+        };
+
+        window.addEventListener("profile-updated", handleProfileUpdate);
+
+        return () => {
+            window.removeEventListener("profile-updated", handleProfileUpdate);
+        };
+    }, [session]);
+
+    const handleLogout = async () => {
+        await authClient.signOut({
+            fetchOptions: {
+                onSuccess: () => {
+                    router.push("/sign-in");
+                },
+            },
+        });
+    };
 
     return (
         <header className="h-16 border-b border-border bg-background/50 backdrop-blur-md sticky top-0 z-30 px-4 sm:px-6 flex items-center justify-between">
@@ -42,8 +80,12 @@ export function DashboardNavbar({ onMenuClick }: { onMenuClick?: () => void }) {
                         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                         className="flex items-center gap-2 p-1 rounded-full hover:bg-accent transition-colors"
                     >
-                        <div className="h-8 w-8 rounded-full bg-linear-to-br from-primary to-purple-500 flex items-center justify-center text-primary-foreground font-medium text-sm ring-2 ring-background shadow-sm">
-                            JD
+                        <div className="h-8 w-8 rounded-full bg-linear-to-br from-primary to-purple-500 flex items-center justify-center text-primary-foreground font-medium text-sm ring-2 ring-background shadow-sm overflow-hidden">
+                            {userImage ? (
+                                <img src={userImage} alt="User" className="h-full w-full object-cover" />
+                            ) : (
+                                session?.user?.name?.charAt(0).toUpperCase() || "U"
+                            )}
                         </div>
                         <ChevronDown className="h-4 w-4 text-muted-foreground hidden sm:block" />
                     </button>
@@ -77,7 +119,7 @@ export function DashboardNavbar({ onMenuClick }: { onMenuClick?: () => void }) {
                                         <button
                                             onClick={() => {
                                                 setIsDropdownOpen(false);
-                                                // Add logout logic here
+                                                handleLogout();
                                             }}
                                             className="w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm text-destructive hover:bg-destructive/10 transition-colors"
                                         >

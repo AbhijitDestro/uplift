@@ -3,31 +3,52 @@
 import * as React from "react";
 import { motion } from "framer-motion";
 import { Camera, Mail, Lock, User, Briefcase, Building2, Calendar, Tag, Edit2, Save, X } from "lucide-react";
+import { getUserProfile, updateUserProfile } from "@/app/actions/profile";
+import { authClient } from "@/lib/auth-client";
 
 export default function ProfilePage() {
     const [isEditingProfile, setIsEditingProfile] = React.useState(false);
     const [isEditingJobDetails, setIsEditingJobDetails] = React.useState(false);
     const [profileImage, setProfileImage] = React.useState<string | null>(null);
+    const { data: session } = authClient.useSession();
 
     // Profile form state
     const [profileData, setProfileData] = React.useState({
-        name: "John Doe",
-        email: "john.doe@example.com",
-        currentPassword: "",
-        newPassword: "",
-        confirmPassword: "",
+        name: "",
+        email: "",
     });
 
     // Job details form state
     const [jobDetails, setJobDetails] = React.useState({
-        jobTitle: "Senior Software Engineer",
-        company: "Tech Corp",
-        yearsOfExperience: "5",
-        industries: "Technology, SaaS",
-        keySkills: "React, TypeScript, Node.js, AWS",
+        jobTitle: "",
+        company: "",
+        yearsOfExperience: "",
+        industries: "",
+        keySkills: "",
     });
 
-    const [savedJobDetails, setSavedJobDetails] = React.useState(jobDetails);
+    React.useEffect(() => {
+        async function fetchProfile() {
+            if (session?.user?.id && !isEditingProfile) { // Only fetch if not editing
+                const data = await getUserProfile();
+                if (data) {
+                    setProfileData({
+                        name: data.name,
+                        email: data.email,
+                    });
+                    setJobDetails({
+                        jobTitle: data.jobTitle || "",
+                        company: data.companyName || "",
+                        yearsOfExperience: data.yearsOfExperience?.toString() || "",
+                        industries: data.industryName || "",
+                        keySkills: data.keySkills?.join(", ") || "",
+                    });
+                    setProfileImage(data.image || null);
+                }
+            }
+        }
+        fetchProfile();
+    }, [session, isEditingProfile]); // Added isEditingProfile dependency
 
     const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -40,20 +61,55 @@ export default function ProfilePage() {
         }
     };
 
-    const handleSaveProfile = () => {
-        // Here you would typically save to backend
-        setIsEditingProfile(false);
+    const handleSaveProfile = async () => {
+        try {
+            if (profileImage) {
+                await updateUserProfile({
+                    image: profileImage,
+                });
+                alert("Profile image updated successfully!");
+                window.dispatchEvent(new Event("profile-updated"));
+            }
+            setIsEditingProfile(false);
+        } catch (error) {
+            console.error("Failed to update profile image", error);
+            alert("Failed to update profile image.");
+        }
     };
 
-    const handleSaveJobDetails = () => {
-        setSavedJobDetails(jobDetails);
+    const handleSaveJobDetails = async () => {
+        try {
+            await updateUserProfile({
+                jobTitle: jobDetails.jobTitle,
+                companyName: jobDetails.company,
+                yearsOfExperience: parseInt(jobDetails.yearsOfExperience) || 0,
+                industryName: jobDetails.industries,
+                keySkills: jobDetails.keySkills.split(",").map(s => s.trim()).filter(Boolean),
+            });
+            setIsEditingJobDetails(false);
+            alert("Profile updated successfully!");
+        } catch (error) {
+            console.error("Failed to update profile", error);
+            alert("Failed to update profile.");
+        }
+    };
+
+    const handleCancelJobDetails = async () => {
+        // Re-fetch to reset
+        const data = await getUserProfile();
+        if (data) {
+            setJobDetails({
+                jobTitle: data.jobTitle || "",
+                company: data.companyName || "",
+                yearsOfExperience: data.yearsOfExperience?.toString() || "",
+                industries: data.industryName || "",
+                keySkills: data.keySkills?.join(", ") || "",
+            });
+        }
         setIsEditingJobDetails(false);
     };
 
-    const handleCancelJobDetails = () => {
-        setJobDetails(savedJobDetails);
-        setIsEditingJobDetails(false);
-    };
+    if (!session) return <div>Loading...</div>;
 
     return (
         <div className="max-w-5xl mx-auto space-y-6">
@@ -97,22 +153,24 @@ export default function ProfilePage() {
                                 {profileImage ? (
                                     <img src={profileImage} alt="Profile" className="h-full w-full object-cover" />
                                 ) : (
-                                    "JD"
+                                    session.user.name?.charAt(0).toUpperCase() || "U"
                                 )}
                             </div>
-                            <label
-                                htmlFor="profile-image"
-                                className="absolute bottom-0 right-0 h-8 w-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center cursor-pointer hover:bg-primary/90 transition-colors"
-                            >
-                                <Camera className="h-4 w-4" />
-                                <input
-                                    id="profile-image"
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={handleImageUpload}
-                                    className="hidden"
-                                />
-                            </label>
+                            {isEditingProfile && (
+                                <label
+                                    htmlFor="profile-image"
+                                    className="absolute bottom-0 right-0 h-8 w-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center cursor-pointer hover:bg-primary/90 transition-colors"
+                                >
+                                    <Camera className="h-4 w-4" />
+                                    <input
+                                        id="profile-image"
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handleImageUpload}
+                                        className="hidden"
+                                    />
+                                </label>
+                            )}
                         </div>
                         <div>
                             <h3 className="font-semibold text-lg">{profileData.name}</h3>
@@ -129,9 +187,8 @@ export default function ProfilePage() {
                                 <input
                                     type="text"
                                     value={profileData.name}
-                                    onChange={(e) => setProfileData({ ...profileData, name: e.target.value })}
-                                    disabled={!isEditingProfile}
-                                    className="w-full h-10 pl-9 pr-3 rounded-lg border border-input bg-background/50 text-sm disabled:opacity-50 disabled:cursor-not-allowed focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                                    disabled={true}
+                                    className="w-full h-10 pl-9 pr-3 rounded-lg border border-input bg-background/50 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                                 />
                             </div>
                         </div>
@@ -143,66 +200,20 @@ export default function ProfilePage() {
                                 <input
                                     type="email"
                                     value={profileData.email}
-                                    onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
-                                    disabled={!isEditingProfile}
-                                    className="w-full h-10 pl-9 pr-3 rounded-lg border border-input bg-background/50 text-sm disabled:opacity-50 disabled:cursor-not-allowed focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                                    disabled={true}
+                                    className="w-full h-10 pl-9 pr-3 rounded-lg border border-input bg-background/50 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                                 />
                             </div>
-                        </div>
-
-                        {isEditingProfile && (
-                            <>
-                                <div>
-                                    <label className="text-sm font-medium mb-2 block">Current Password</label>
-                                    <div className="relative">
-                                        <Lock className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                                        <input
-                                            type="password"
-                                            value={profileData.currentPassword}
-                                            onChange={(e) => setProfileData({ ...profileData, currentPassword: e.target.value })}
-                                            placeholder="Enter current password"
-                                            className="w-full h-10 pl-9 pr-3 rounded-lg border border-input bg-background/50 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                                        />
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <label className="text-sm font-medium mb-2 block">New Password</label>
-                                    <div className="relative">
-                                        <Lock className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                                        <input
-                                            type="password"
-                                            value={profileData.newPassword}
-                                            onChange={(e) => setProfileData({ ...profileData, newPassword: e.target.value })}
-                                            placeholder="Enter new password"
-                                            className="w-full h-10 pl-9 pr-3 rounded-lg border border-input bg-background/50 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                                        />
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <label className="text-sm font-medium mb-2 block">Confirm Password</label>
-                                    <div className="relative">
-                                        <Lock className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                                        <input
-                                            type="password"
-                                            value={profileData.confirmPassword}
-                                            onChange={(e) => setProfileData({ ...profileData, confirmPassword: e.target.value })}
-                                            placeholder="Confirm new password"
-                                            className="w-full h-10 pl-9 pr-3 rounded-lg border border-input bg-background/50 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                                        />
-                                    </div>
-                                </div>
-                            </>
-                        )}
+                    </div>
                     </div>
 
                     {isEditingProfile && (
-                        <div className="flex gap-3 justify-end">
+                        <div className="flex gap-3 justify-end pt-4">
                             <button
                                 onClick={() => setIsEditingProfile(false)}
-                                className="px-4 py-2 text-sm border border-border rounded-lg hover:bg-accent transition-colors"
+                                className="flex items-center gap-2 px-4 py-2 text-sm border border-border rounded-lg hover:bg-accent transition-colors"
                             >
+                                <X className="h-4 w-4" />
                                 Cancel
                             </button>
                             <button
@@ -274,7 +285,7 @@ export default function ProfilePage() {
                             <div className="relative">
                                 <Calendar className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                                 <input
-                                    type="text"
+                                    type="number"
                                     value={jobDetails.yearsOfExperience}
                                     onChange={(e) => setJobDetails({ ...jobDetails, yearsOfExperience: e.target.value })}
                                     disabled={!isEditingJobDetails}
@@ -285,7 +296,7 @@ export default function ProfilePage() {
                         </div>
 
                         <div>
-                            <label className="text-sm font-medium mb-2 block">Industries</label>
+                            <label className="text-sm font-medium mb-2 block">Industry Name</label>
                             <div className="relative">
                                 <Tag className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                                 <input
@@ -301,7 +312,7 @@ export default function ProfilePage() {
                     </div>
 
                     <div>
-                        <label className="text-sm font-medium mb-2 block">Key Skills</label>
+                        <label className="text-sm font-medium mb-2 block">Key Skills (comma separated)</label>
                         <textarea
                             value={jobDetails.keySkills}
                             onChange={(e) => setJobDetails({ ...jobDetails, keySkills: e.target.value })}

@@ -4,17 +4,51 @@ import * as React from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Github, ArrowRight, Mail, Lock } from "lucide-react";
+import { authClient } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
 
 export default function SignInPage() {
     const [isLoading, setIsLoading] = React.useState<boolean>(false);
+    const [email, setEmail] = React.useState("");
+    const [password, setPassword] = React.useState("");
+    const router = useRouter();
 
     async function onSubmit(event: React.SyntheticEvent) {
         event.preventDefault();
         setIsLoading(true);
 
-        setTimeout(() => {
-            setIsLoading(false);
-        }, 3000);
+        await authClient.signIn.email({
+            email,
+            password,
+            callbackURL: "/dashboard",
+        }, {
+            onRequest: () => {
+                setIsLoading(true);
+            },
+            onSuccess: () => {
+                router.push("/dashboard");
+            },
+            onError: (ctx) => {
+                console.error("Sign in error:", ctx);
+                const errorMessage = ctx.error?.message || "Something went wrong. Please check the console.";
+                alert(errorMessage);
+                setIsLoading(false);
+            }
+        });
+    }
+
+    async function signInWithGithub() {
+        await authClient.signIn.social({
+            provider: "github",
+            callbackURL: "/dashboard",
+        });
+    }
+
+    async function signInWithGoogle() {
+        await authClient.signIn.social({
+            provider: "google",
+            callbackURL: "/dashboard",
+        });
     }
 
     return (
@@ -49,6 +83,8 @@ export default function SignInPage() {
                                     autoComplete="email"
                                     autoCorrect="off"
                                     disabled={isLoading}
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
                                     className="flex h-10 w-full rounded-md border border-input bg-background/50 px-3 py-2 pl-9 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                                 />
                             </div>
@@ -76,6 +112,8 @@ export default function SignInPage() {
                                     autoCapitalize="none"
                                     autoComplete="current-password"
                                     disabled={isLoading}
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
                                     className="flex h-10 w-full rounded-md border border-input bg-background/50 px-3 py-2 pl-9 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                                 />
                             </div>
@@ -124,6 +162,7 @@ export default function SignInPage() {
                     <button
                         type="button"
                         disabled={isLoading}
+                        onClick={signInWithGithub}
                         className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
                     >
                         <Github className="mr-2 h-4 w-4" />
@@ -132,6 +171,7 @@ export default function SignInPage() {
                     <button
                         type="button"
                         disabled={isLoading}
+                        onClick={signInWithGoogle}
                         className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
                     >
                         <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">

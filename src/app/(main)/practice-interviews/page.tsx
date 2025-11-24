@@ -2,18 +2,18 @@
 
 import * as React from "react";
 import { motion } from "framer-motion";
-import { Video, Mic, ArrowRight, Clock, Users, Sparkles } from "lucide-react";
+import { NotepadText, Mic, ArrowRight, Clock, Users, Sparkles } from "lucide-react";
 import Link from "next/link";
 
 const interviewTypes = [
     {
-        icon: Video,
+        icon: NotepadText,
         title: "Mock Interview",
-        description: "Practice with AI-driven mock interviews customized for your target role",
+        description: "Practice with AI-driven mock interviews customized for your target role and level of expertise",
         href: "/practice-interviews/mock",
         color: "text-orange-500",
         bg: "bg-orange-500/10",
-        features: ["Behavioral Questions", "Technical Questions", "Real-time Feedback"],
+        features: ["Multiple Choice Questions", "Technical Questions", "Real-time Feedback"],
     },
     {
         icon: Mic,
@@ -59,7 +59,7 @@ export default function PracticeInterviewsPage() {
             {/* Stats Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {[
-                    { label: "Total Sessions", value: "24", icon: Video },
+                    { label: "Total Sessions", value: "24", icon: NotepadText },
                     { label: "Avg Score", value: "82%", icon: Sparkles },
                     { label: "Hours Practiced", value: "12", icon: Clock },
                 ].map((stat, index) => (
@@ -150,7 +150,7 @@ export default function PracticeInterviewsPage() {
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-4">
                                     <div className="bg-primary/10 p-2 rounded-lg">
-                                        <Video className="h-5 w-5 text-primary" />
+                                        <NotepadText className="h-5 w-5 text-primary" />
                                     </div>
                                     <div>
                                         <h4 className="font-medium">{session.type}</h4>

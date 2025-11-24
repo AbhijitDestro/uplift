@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 import {
     FileText,
     PenTool,
@@ -80,8 +81,23 @@ const recentActivity = [
     },
 ];
 
+import { authClient } from "@/lib/auth-client";
+
 export default function DashboardPage() {
-    const userName = "John"; // This would come from your auth context/state
+    const { data: session } = authClient.useSession();
+    const router = useRouter();
+
+    React.useEffect(() => {
+        if (session === null) { // session is null when not authenticated, undefined when loading
+            router.push("/sign-in");
+        }
+    }, [session, router]);
+
+    if (!session) {
+        return <div>Loading...</div>; // Or a skeleton loader
+    }
+
+    const userName = session.user.name;
 
     return (
         <div className="max-w-7xl mx-auto space-y-8">
