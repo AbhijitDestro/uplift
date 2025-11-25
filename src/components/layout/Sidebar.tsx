@@ -27,7 +27,7 @@ const menuItems = [
     { icon: PenTool, label: "Resume Builder", href: "/resume/builder" },
     { icon: MessageSquare, label: "Cover Letter", href: "/cover-letter" },
     { icon: Video, label: "Practice Interviews", href: "/practice-interviews" },
-    { icon: TrendingUp, label: "Industry Insights", href: "/insights" },
+    { icon: TrendingUp, label: "Industry Insights", href: "/industry-insights" },
 ];
 
 interface SidebarProps {
