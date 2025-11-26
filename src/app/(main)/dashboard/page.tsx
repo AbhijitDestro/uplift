@@ -129,7 +129,7 @@ export default function DashboardPage() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.5, delay: 0.1 + index * 0.05 }}
-                        className="bg-background/40 backdrop-blur-sm border border-border rounded-xl p-6 hover:shadow-lg transition-shadow"
+                        className="relative bg-background/30 backdrop-blur-xl border border-white/10 rounded-xl p-6 hover:shadow-2xl transition-all before:absolute before:inset-0 before:rounded-xl before:bg-gradient-to-br before:from-white/5 before:to-transparent before:pointer-events-none"
                     >
                         <div className="flex items-center justify-between mb-2">
                             <stat.icon className={`h-5 w-5 ${stat.color}`} />
@@ -156,7 +156,7 @@ export default function DashboardPage() {
                         >
                             <Link
                                 href={action.href}
-                                className="group block bg-background/40 backdrop-blur-sm border border-border rounded-xl p-6 hover:border-primary/50 hover:shadow-lg transition-all"
+                                className="group block relative bg-background/30 backdrop-blur-xl border border-white/10 rounded-xl p-6 hover:border-primary/30 hover:shadow-2xl transition-all before:absolute before:inset-0 before:rounded-xl before:bg-gradient-to-br before:from-white/5 before:to-transparent before:pointer-events-none"
                             >
                                 <div className={`inline-flex p-3 rounded-lg mb-4 ${action.bg}`}>
                                     <action.icon className={`h-6 w-6 ${action.color}`} />
@@ -193,7 +193,7 @@ export default function DashboardPage() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 0.4 }}
-                    className="bg-background/40 backdrop-blur-sm border border-border rounded-xl divide-y divide-border"
+                    className="relative bg-background/30 backdrop-blur-xl border border-white/10 rounded-xl divide-y divide-white/5 before:absolute before:inset-0 before:rounded-xl before:bg-gradient-to-br before:from-white/5 before:to-transparent before:pointer-events-none"
                 >
                     {recentActivity.map((activity, index) => (
                         <div

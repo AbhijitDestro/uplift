@@ -10,7 +10,7 @@ const interviewTypes = [
         icon: NotepadText,
         title: "Mock Interview",
         description: "Practice with AI-driven mock interviews customized for your target role and level of expertise",
-        href: "/practice-interviews/mock",
+        href: "/practice-interviews/mock-assessment",
         color: "text-orange-500",
         bg: "bg-orange-500/10",
         features: ["Multiple Choice Questions", "Technical Questions", "Real-time Feedback"],
@@ -19,7 +19,7 @@ const interviewTypes = [
         icon: Mic,
         title: "Voice Interview",
         description: "Improve your communication skills with real-time voice feedback and analysis",
-        href: "/practice-interviews/voice",
+        href: "/practice-interviews/voice-interview",
         color: "text-green-500",
         bg: "bg-green-500/10",
         features: ["Speech Analysis", "Tone & Clarity", "Confidence Scoring"],
@@ -68,7 +68,7 @@ export default function PracticeInterviewsPage() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.5, delay: 0.1 + index * 0.05 }}
-                        className="bg-background/40 backdrop-blur-sm border border-border rounded-xl p-6"
+                        className="relative bg-background/30 backdrop-blur-xl border border-white/10 rounded-xl p-6 before:absolute before:inset-0 before:rounded-xl before:bg-gradient-to-br before:from-white/5 before:to-transparent before:pointer-events-none"
                     >
                         <div className="flex items-center justify-between mb-2">
                             <stat.icon className="h-5 w-5 text-primary" />
@@ -89,7 +89,7 @@ export default function PracticeInterviewsPage() {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.5, delay: 0.2 + index * 0.1 }}
-                            className="bg-background/40 backdrop-blur-sm border border-border rounded-xl p-6 hover:border-primary/50 hover:shadow-lg transition-all"
+                            className="relative bg-background/30 backdrop-blur-xl border border-white/10 rounded-xl p-6 hover:border-primary/30 hover:shadow-2xl transition-all before:absolute before:inset-0 before:rounded-xl before:bg-gradient-to-br before:from-white/5 before:to-transparent before:pointer-events-none"
                         >
                             <div className="flex items-start gap-4 mb-4">
                                 <div className={`p-3 rounded-lg ${type.bg}`}>
@@ -114,7 +114,7 @@ export default function PracticeInterviewsPage() {
 
                             <Link
                                 href={type.href}
-                                className="flex items-center justify-center gap-2 w-full bg-primary text-primary-foreground px-4 py-2.5 rounded-lg hover:bg-primary/90 transition-colors font-medium"
+                                className="flex items-center justify-center gap-2 w-full bg-black text-white px-4 py-2.5 rounded-lg hover:bg-gray-700 cursor-pointer dark:bg-white dark:text-black dark:hover:bg-gray-300 transition-colors font-medium"
                             >
                                 Start Practice
                                 <ArrowRight className="h-4 w-4" />
@@ -140,7 +140,7 @@ export default function PracticeInterviewsPage() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 0.4 }}
-                    className="bg-background/40 backdrop-blur-sm border border-border rounded-xl divide-y divide-border"
+                    className="relative bg-background/30 backdrop-blur-xl border border-white/10 rounded-xl divide-y divide-white/5 before:absolute before:inset-0 before:rounded-xl before:bg-gradient-to-br before:from-white/5 before:to-transparent before:pointer-events-none"
                 >
                     {recentSessions.map((session, index) => (
                         <div

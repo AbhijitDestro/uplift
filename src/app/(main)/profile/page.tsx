@@ -130,14 +130,14 @@ export default function ProfilePage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.1 }}
-                className="bg-background/40 backdrop-blur-sm border border-border rounded-xl p-6"
+                className="relative bg-background/30 backdrop-blur-xl border border-white/10 rounded-xl p-6 before:absolute before:inset-0 before:rounded-xl before:bg-gradient-to-br before:from-white/5 before:to-transparent before:pointer-events-none"
             >
                 <div className="flex items-center justify-between mb-6">
                     <h2 className="text-xl font-semibold">Personal Information</h2>
                     {!isEditingProfile && (
                         <button
                             onClick={() => setIsEditingProfile(true)}
-                            className="flex items-center gap-2 px-4 py-2 text-sm bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+                            className="flex items-center gap-2 px-4 py-2 text-sm bg-primary text-primary-foreground rounded-lg transition-colors hover:bg-black hover:text-white cursor-pointer dark:hover:bg-white dark:hover:text-black"
                         >
                             <Edit2 className="h-4 w-4" />
                             Edit
@@ -159,7 +159,7 @@ export default function ProfilePage() {
                             {isEditingProfile && (
                                 <label
                                     htmlFor="profile-image"
-                                    className="absolute bottom-0 right-0 h-8 w-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center cursor-pointer hover:bg-primary/90 transition-colors"
+                                    className="absolute bottom-0 right-0 h-8 w-8 text-white rounded-full flex items-center justify-center cursor-pointer transition-colors bg-black dark:bg-white dark:text-black"
                                 >
                                     <Camera className="h-4 w-4" />
                                     <input
@@ -233,14 +233,14 @@ export default function ProfilePage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.2 }}
-                className="bg-background/40 backdrop-blur-sm border border-border rounded-xl p-6"
+                className="relative bg-background/30 backdrop-blur-xl border border-white/10 rounded-xl p-6 before:absolute before:inset-0 before:rounded-xl before:bg-gradient-to-br before:from-white/5 before:to-transparent before:pointer-events-none"
             >
                 <div className="flex items-center justify-between mb-6">
                     <h2 className="text-xl font-semibold">Professional Details</h2>
                     {!isEditingJobDetails && (
                         <button
                             onClick={() => setIsEditingJobDetails(true)}
-                            className="flex items-center gap-2 px-4 py-2 text-sm bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+                            className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-black hover:text-white cursor-pointer dark:hover:bg-white dark:hover:text-black rounded-lg transition-colors"
                         >
                             <Edit2 className="h-4 w-4" />
                             Edit

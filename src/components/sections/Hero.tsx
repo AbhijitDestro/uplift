@@ -38,7 +38,7 @@ export function Hero() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.5, delay: 0.1 }}
-                        className="text-5xl sm:text-6xl lg:text-8xl font-bold tracking-tight mb-6 bg-clip-text text-transparent bg-linear-to-r from-foreground to-foreground/70"
+                        className="text-5xl sm:text-6xl lg:text-8xl font-bold tracking-tight mb-6 bg-clip-text bg-gradient-to-r from-primary to-primary/70"
                     >
                         Land Your First Job <br className="hidden sm:block" />
                         <span className="text-primary">Faster with AI</span>

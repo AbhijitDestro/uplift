@@ -11,7 +11,6 @@ import {
     PenTool,
     MessageSquare,
     Video,
-    Mic,
     TrendingUp,
     ChevronLeft,
     ChevronRight,
@@ -60,10 +59,10 @@ export function Sidebar({ isOpen = false, onClose, onCollapseChange }: SidebarPr
                 initial={{ width: 240 }}
                 animate={{ width: isCollapsed ? 80 : 240 }}
                 transition={{ duration: 0.3, ease: "easeInOut" }}
-                className="fixed left-0 top-0 h-screen bg-background/80 backdrop-blur-md border-r border-border hidden md:flex flex-col z-40"
-            >
+                className="fixed left-0 top-0 h-screen bg-background/80 backdrop-blur-xl border-r border-white/10 hidden md:flex flex-col z-40"
+            > 
                 {/* Logo Section */}
-                <div className="h-16 flex items-center justify-between px-4 border-b border-border/50">
+                <div className="h-16 flex items-center justify-between px-4 border-b border-white/10 backdrop-blur-xl">
                     <Link href="/dashboard" className="flex items-center gap-2 overflow-hidden">
                         <div className="bg-primary text-primary-foreground p-1.5 rounded-lg shrink-0">
                             <Sparkles className="h-5 w-5" />
@@ -86,12 +85,12 @@ export function Sidebar({ isOpen = false, onClose, onCollapseChange }: SidebarPr
                 {/* Toggle Button */}
                 <button
                     onClick={handleToggleCollapse}
-                    className="absolute -right-3 top-20 bg-background border border-border rounded-full p-1 hover:bg-accent transition-colors z-50"
+                    className="absolute -right-5 top-20 z-50 bg-black border border-white/40 rounded-md p-2 hover:bg-accent transition-colors"
                 >
                     {isCollapsed ? (
-                        <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                        <ChevronRight className="h-4 w-4 text-white" />
                     ) : (
-                        <ChevronLeft className="h-4 w-4 text-muted-foreground" />
+                        <ChevronLeft className="h-4 w-4 text-white" />
                     )}
                 </button>
 
@@ -139,10 +138,10 @@ export function Sidebar({ isOpen = false, onClose, onCollapseChange }: SidebarPr
                 </nav>
 
                 {/* Bottom Section */}
-                <div className="p-3 border-t border-border/50 space-y-1">
+                <div className="p-3 border-t border-white/40 space-y-1">
                     <Link
                         href="/settings"
-                        className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+                        className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-white hover:bg-accent hover:text-foreground transition-colors"
                     >
                         <Settings className="h-5 w-5 shrink-0" />
                         <AnimatePresence>

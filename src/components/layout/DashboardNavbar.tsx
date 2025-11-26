@@ -48,7 +48,7 @@ export function DashboardNavbar({ onMenuClick }: { onMenuClick?: () => void }) {
     };
 
     return (
-        <header className="h-16 border-b border-border bg-background/50 backdrop-blur-md sticky top-0 z-30 px-4 sm:px-6 flex items-center justify-between">
+        <header className="h-16 border-b border-white/10 bg-background/30 backdrop-blur-xl sticky top-0 z-30 px-4 sm:px-6 flex items-center justify-between">
             <div className="flex items-center gap-4">
                 <button
                     onClick={onMenuClick}
@@ -61,7 +61,7 @@ export function DashboardNavbar({ onMenuClick }: { onMenuClick?: () => void }) {
                     <input
                         type="text"
                         placeholder="Search..."
-                        className="h-9 w-64 rounded-full border border-input bg-background pl-9 pr-4 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                        className="h-9 w-64 rounded-full border border-white/10 bg-background/30 backdrop-blur-xl pl-9 pr-4 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                     />
                 </div>
             </div>
@@ -105,9 +105,9 @@ export function DashboardNavbar({ onMenuClick }: { onMenuClick?: () => void }) {
                                     animate={{ opacity: 1, y: 0 }}
                                     exit={{ opacity: 0, y: -10 }}
                                     transition={{ duration: 0.2 }}
-                                    className="absolute right-0 mt-2 w-48 bg-background border border-border rounded-lg shadow-lg overflow-hidden z-50"
+                                    className="absolute right-0 mt-2 w-48 bg-background border border-white/10 rounded-lg shadow-2xl overflow-hidden z-50 before:absolute before:inset-0 before:rounded-lg before:bg-gradient-to-br before:from-white/5 before:to-transparent before:pointer-events-none"
                                 >
-                                    <div className="p-2">
+                                    <div className="p-2 relative z-10">
                                         <Link
                                             href="/profile"
                                             onClick={() => setIsDropdownOpen(false)}

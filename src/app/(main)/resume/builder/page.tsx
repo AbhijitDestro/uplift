@@ -86,8 +86,8 @@ export default function ResumeBuilderPage() {
                     My Resumes
                 </h2>
                 
-                <div className="bg-background/40 backdrop-blur-sm border border-border rounded-xl overflow-hidden">
-                    <div className="p-8 text-center text-muted-foreground">
+                <div className="relative bg-background/30 backdrop-blur-xl border border-white/10 rounded-xl overflow-hidden before:absolute before:inset-0 before:rounded-xl before:bg-gradient-to-br before:from-white/5 before:to-transparent before:pointer-events-none">
+                    <div className="p-8 text-center text-muted-foreground relative z-10">
                         <LayoutTemplate className="h-12 w-12 mx-auto mb-3 opacity-50" />
                         <p>You haven't created any resumes yet.</p>
                         <button className="mt-4 text-primary hover:underline text-sm font-medium">

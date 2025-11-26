@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import {
   BarChart,
   Bar,
@@ -54,13 +53,13 @@ interface DashboardViewProps {
   insights: IndustryInsights;
 }
 
-const DashboardView = ({ insights }: DashboardViewProps) => {
-  // Transform salary data for the chart
+const IndustryView = ({ insights }: DashboardViewProps) => {
+  // Transform salary data for the chart (convert to lakhs)
   const salaryData = insights.salaryRanges.map((range) => ({
     name: range.role,
-    min: range.min / 1000,
-    max: range.max / 1000,
-    median: range.median / 1000,
+    min: range.min / 100000,
+    max: range.max / 100000,
+    median: range.median / 100000,
   }));
 
   const getDemandLevelColor = (level: string) => {
@@ -174,7 +173,7 @@ const DashboardView = ({ insights }: DashboardViewProps) => {
         <CardHeader>
           <CardTitle>Salary Ranges by Role</CardTitle>
           <CardDescription>
-            Displaying minimum, median, and maximum salaries (in thousands)
+            Displaying minimum, median, and maximum salaries in Indian Rupees (in lakhs per annum)
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -192,7 +191,7 @@ const DashboardView = ({ insights }: DashboardViewProps) => {
                           <p className="font-medium">{label}</p>
                           {payload.map((item) => (
                             <p key={item.name} className="text-sm">
-                              {item.name}: ${item.value}K
+                              {item.name}: ₹{item.value?.toFixed(2)}L
                             </p>
                           ))}
                         </div>
@@ -201,9 +200,9 @@ const DashboardView = ({ insights }: DashboardViewProps) => {
                     return null;
                   }}
                 />
-                <Bar dataKey="min" fill="#94a3b8" name="Min Salary (K)" />
-                <Bar dataKey="median" fill="#64748b" name="Median Salary (K)" />
-                <Bar dataKey="max" fill="#475569" name="Max Salary (K)" />
+                <Bar dataKey="min" fill="#94a3b8" name="Min Salary (₹L)" />
+                <Bar dataKey="median" fill="#64748b" name="Median Salary (₹L)" />
+                <Bar dataKey="max" fill="#475569" name="Max Salary (₹L)" />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -251,4 +250,4 @@ const DashboardView = ({ insights }: DashboardViewProps) => {
   );
 };
 
-export default DashboardView;
+export default IndustryView;

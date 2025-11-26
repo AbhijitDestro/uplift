@@ -114,14 +114,17 @@ export const assessment = pgTable(
     userId: text("user_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
-    quizScore: real("quiz_score").notNull(), // Overall quiz score
+    quizScore: real("quiz_score"), // Overall quiz score (nullable for in-progress)
     questions: json("questions").$type<Array<{
       question: string;
       answer: string;
-      userAnswer: string;
-      isCorrect: boolean;
+      userAnswer?: string;
+      isCorrect?: boolean;
+      options: string[];
     }>>().notNull(), // Array of question objects
-    category: text("category").notNull(), // "Technical", "Behavioral", etc.
+    topic: text("topic").notNull(),
+    level: text("level").notNull(), // Beginner, Intermediate, Advanced
+    status: text("status").default("in_progress").notNull(), // in_progress, completed
     improvementTip: text("improvement_tip"), // AI-generated improvement tip
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
@@ -137,11 +140,23 @@ export const resume = pgTable("resume", {
   id: text("id").primaryKey(),
   userId: text("user_id")
     .notNull()
-    .unique() // One resume per user
     .references(() => user.id, { onDelete: "cascade" }),
-  content: text("content").notNull(), // Markdown content
+  fileName: text("file_name").notNull(),
+  content: text("content").notNull(), // Extracted text from PDF
+  jobDescription: text("job_description"),
   atsScore: real("ats_score"),
-  feedback: text("feedback"),
+  analysis: json("analysis").$type<{
+    overallScore: number;
+    atsScore: number;
+    educationScore: number;
+    experienceScore: number;
+    summaryScore: number;
+    matchingKeywords: string[];
+    missingKeywords: string[];
+    strengths: string[];
+    improvements: string[];
+    detailedFeedback: string;
+  }>(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at")
     .defaultNow()
@@ -227,7 +242,65 @@ export const coverLetterRelations = relations(coverLetter, ({ one }) => ({
   }),
 }));
 
+
 export const industryInsightRelations = relations(industryInsight, ({ many }) => ({
   users: many(user),
 }));
 
+// Interview table
+export const interview = pgTable("interview", {
+  id: text("id").primaryKey(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  jobRole: text("job_role").notNull(),
+  company: text("company"),
+  interviewType: text("interview_type").notNull(),
+  techStack: text("tech_stack"),
+  status: text("status").default("started").notNull(), // started, completed
+  transcript: json("transcript").$type<Array<{ role: string; content: string }>>(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .$onUpdate(() => /* @__PURE__ */ new Date())
+    .notNull(),
+});
+
+// Feedback table
+export const feedback = pgTable("feedback", {
+  id: text("id").primaryKey(),
+  interviewId: text("interview_id")
+    .notNull()
+    .references(() => interview.id, { onDelete: "cascade" }),
+  userId: text("user_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  totalScore: integer("total_score").notNull(),
+  categoryScores: json("category_scores").$type<Array<{ name: string; score: number; comment: string }>>().notNull(),
+  strengths: text("strengths").array().notNull(),
+  areasForImprovement: text("areas_for_improvement").array().notNull(),
+  finalAssessment: text("final_assessment").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const interviewRelations = relations(interview, ({ one, many }) => ({
+  user: one(user, {
+    fields: [interview.userId],
+    references: [user.id],
+  }),
+  feedback: one(feedback, {
+    fields: [interview.id],
+    references: [feedback.interviewId],
+  }),
+}));
+
+export const feedbackRelations = relations(feedback, ({ one }) => ({
+  interview: one(interview, {
+    fields: [feedback.interviewId],
+    references: [interview.id],
+  }),
+  user: one(user, {
+    fields: [feedback.userId],
+    references: [user.id],
+  }),
+}));

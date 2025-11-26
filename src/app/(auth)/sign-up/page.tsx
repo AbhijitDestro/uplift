@@ -58,7 +58,7 @@ export default function SignUpPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="bg-background/40 backdrop-blur-md border border-border p-8 rounded-2xl shadow-xl"
+            className="relative bg-background/30 backdrop-blur-xl border border-white/10 p-8 rounded-2xl shadow-2xl before:absolute before:inset-0 before:rounded-2xl before:bg-gradient-to-br before:from-white/5 before:to-transparent before:pointer-events-none"
         >
             <div className="flex flex-col space-y-2 text-center mb-8">
                 <h1 className="text-2xl font-semibold tracking-tight">Create an account</h1>
@@ -136,7 +136,7 @@ export default function SignUpPage() {
                         </div>
                         <button
                             disabled={isLoading}
-                            className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 w-full"
+                            className="bg-black text-white rounded-md h-10 px-4 py-2 w-full cursor-pointer hover:bg-gray-800"
                         >
                             {isLoading && (
                                 <svg
@@ -166,20 +166,20 @@ export default function SignUpPage() {
                 </form>
                 <div className="relative">
                     <div className="absolute inset-0 flex items-center">
-                        <span className="w-full border-t border-muted" />
+                        <span className="w-full border-t border-muted -mt-8" />
                     </div>
                     <div className="relative flex justify-center text-xs uppercase">
-                        <span className="bg-background px-2 text-muted-foreground rounded-full">
+                        <span className="bg-background px-2 text-muted-foreground rounded-full mt-3">
                             Or continue with
                         </span>
                     </div>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-4 -mt-3">
                     <button
                         type="button"
                         disabled={isLoading}
                         onClick={signUpWithGithub}
-                        className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
+                        className="inline-flex items-center justify-center rounded-md text-sm font-medium border hover:bg-gray-900 hover:text-white h-10 px-4 py-2 cursor-pointer dark:hover:border-gray-900"
                     >
                         <Github className="mr-2 h-4 w-4" />
                         Github
@@ -188,7 +188,7 @@ export default function SignUpPage() {
                         type="button"
                         disabled={isLoading}
                         onClick={signUpWithGoogle}
-                        className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
+                        className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-gray-900 dark:hover:border-gray-900  hover:text-white h-10 px-4 py-2 cursor-pointer"
                     >
                         <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
                             <path
