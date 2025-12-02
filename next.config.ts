@@ -14,6 +14,8 @@ const nextConfig: NextConfig = {
         hostname: 'lh3.googleusercontent.com',
       },
     ],
+    // Allow local images to be served from the public directory
+    unoptimized: true,
   },
   experimental: {
     serverActions: {
