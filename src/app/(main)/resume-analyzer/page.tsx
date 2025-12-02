@@ -10,12 +10,16 @@ import { authClient } from "@/lib/auth-client"
 import { analyzeResume, getUserResumes, deleteResume } from "@/app/actions/resume"
 import { Loader2, Upload, FileText, Trash2, Eye, CheckCircle, Sparkles } from 'lucide-react'
 import { toast } from 'sonner'
-import * as pdfjsLib from 'pdfjs-dist'
 import { motion } from 'framer-motion'
 
-// Configure PDF.js worker
+// Dynamically import pdfjs-dist only on the client side
+let pdfjsLib: any = null;
 if (typeof window !== 'undefined') {
+  import('pdfjs-dist').then((module) => {
+    pdfjsLib = module;
+    // Configure PDF.js worker
     pdfjsLib.GlobalWorkerOptions.workerSrc = `/pdf.worker.min.mjs`;
+  });
 }
 
 const ResumeAnalyzerPage = () => {
@@ -42,6 +46,11 @@ const ResumeAnalyzerPage = () => {
     }
 
     const extractTextFromPDF = async (file: File): Promise<string> => {
+        // Ensure pdfjsLib is loaded
+        if (!pdfjsLib) {
+            throw new Error("PDF.js library not loaded");
+        }
+        
         const arrayBuffer = await file.arrayBuffer()
         const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
         let fullText = ''
