@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { Loader2, Copy, Check } from "lucide-react";
+import { Loader2, Copy, Check, FileText, Briefcase, Building, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -18,6 +18,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { generateCoverLetter } from "@/actions/cover-letter";
 import { coverLetterSchema, type CoverLetterFormData } from "@/lib/schemas";
+import { motion } from 'framer-motion';
 
 export default function CoverLetterGenerator() {
   const [generating, setGenerating] = useState(false);
@@ -63,54 +64,67 @@ export default function CoverLetterGenerator() {
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
       {/* Left Column: Input Form */}
-      <div className="space-y-6">
-        <Card className="backdrop-blur-3xl border-white/10 bg-white/5">
+      <motion.div
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.1 }}
+      >
+        <Card className="h-full border-0 shadow-2xl bg-white/50 dark:bg-gray-900/50 backdrop-blur-xl ring-1 ring-black/5 dark:ring-white/10">
           <CardHeader>
-            <CardTitle>Job Details</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <Briefcase className="w-5 h-5 text-blue-500" />
+              Job Details
+            </CardTitle>
             <CardDescription>
               Provide information about the position you're applying for
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="companyName">Company Name</Label>
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+              <div className="space-y-2">
+                <Label htmlFor="companyName" className="text-sm font-medium">Company Name</Label>
+                <div className="relative">
+                  <Building className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
                     id="companyName"
                     placeholder="Enter company name"
+                    className="pl-9 bg-white/50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500/20 transition-all"
                     {...register("companyName")}
                   />
-                  {errors.companyName && (
-                    <p className="text-sm text-red-500">
-                      {errors.companyName.message}
-                    </p>
-                  )}
                 </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="jobTitle">Job Title</Label>
-                  <Input
-                    id="jobTitle"
-                    placeholder="Enter job title"
-                    {...register("jobTitle")}
-                  />
-                  {errors.jobTitle && (
-                    <p className="text-sm text-red-500">
-                      {errors.jobTitle.message}
-                    </p>
-                  )}
-                </div>
+                {errors.companyName && (
+                  <p className="text-sm text-red-500">
+                    {errors.companyName.message}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="jobDescription">Job Description</Label>
+                <Label htmlFor="jobTitle" className="text-sm font-medium">Job Title</Label>
+                <div className="relative">
+                  <Briefcase className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="jobTitle"
+                    placeholder="Enter job title"
+                    className="pl-9 bg-white/50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500/20 transition-all"
+                    {...register("jobTitle")}
+                  />
+                </div>
+                {errors.jobTitle && (
+                  <p className="text-sm text-red-500">
+                    {errors.jobTitle.message}
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="jobDescription" className="text-sm font-medium">Job Description</Label>
                 <Textarea
                   id="jobDescription"
                   placeholder="Paste the job description here"
-                  className="h-32"
+                  className="min-h-[150px] bg-white/50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500/20 transition-all resize-none"
                   {...register("jobDescription")}
                 />
                 {errors.jobDescription && (
@@ -120,39 +134,51 @@ export default function CoverLetterGenerator() {
                 )}
               </div>
 
-              <div className="flex justify-end">
-                <Button type="submit" disabled={generating}>
-                  {generating ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Generating...
-                    </>
-                  ) : (
-                    "Generate Cover Letter"
-                  )}
-                </Button>
-              </div>
+              <Button 
+                type="submit" 
+                disabled={generating}
+                className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg shadow-blue-500/25 transition-all duration-300 transform hover:scale-[1.02]"
+              >
+                {generating ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Generating Cover Letter...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="mr-2 h-4 w-4" />
+                    Generate Cover Letter
+                  </>
+                )}
+              </Button>
             </form>
           </CardContent>
         </Card>
-      </div>
+      </motion.div>
 
       {/* Right Column: Generated Output */}
-      <div className="space-y-6">
-        <Card className="h-full flex flex-col backdrop-blur-3xl border-white/10 bg-white/5">
+      <motion.div
+        initial={{ opacity: 0, x: 20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.2 }}
+      >
+        <Card className="h-full flex flex-col border-0 shadow-2xl bg-white/50 dark:bg-gray-900/50 backdrop-blur-xl ring-1 ring-black/5 dark:ring-white/10">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <div className="space-y-1">
-              <CardTitle>Generated Letter</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                <FileText className="w-5 h-5 text-blue-500" />
+                Generated Letter
+              </CardTitle>
               <CardDescription>
                 Your AI-generated cover letter will appear here
               </CardDescription>
             </div>
             {generatedContent && (
               <Button
-                variant="outline"
-                size="icon"
+                variant="ghost"
+                size="sm"
                 onClick={handleCopy}
-                className="h-8 w-8"
+                className="h-8 w-8 p-0 hover:bg-blue-100 dark:hover:bg-blue-900/30 text-blue-600 dark:text-blue-400"
               >
                 {copied ? (
                   <Check className="h-4 w-4 text-green-500" />
@@ -164,23 +190,35 @@ export default function CoverLetterGenerator() {
           </CardHeader>
           <CardContent className="flex-1 overflow-auto max-h-[calc(100vh-200px)]">
             {generatedContent ? (
-              <div className="prose dark:prose-invert max-w-none p-4 rounded-lg bg-white/5 border border-white/10 whitespace-pre-wrap">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="prose prose-blue dark:prose-invert max-w-none p-6 rounded-xl bg-white/50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 whitespace-pre-wrap"
+              >
                 {generatedContent}
-              </div>
+              </motion.div>
             ) : (
-              <div className="flex h-full flex-col items-center justify-center text-center text-muted-foreground p-8">
-                <div className="rounded-full bg-muted p-4 mb-4">
-                  <Loader2 className="h-8 w-8 animate-spin" />
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="h-full flex flex-col items-center justify-center text-center p-8 border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-2xl bg-white/30 dark:bg-gray-900/30 backdrop-blur-sm"
+              >
+                <div className="w-16 h-16 rounded-full bg-blue-100 dark:bg-blue-900/20 flex items-center justify-center mb-4">
+                  <FileText className="h-8 w-8 text-blue-600 dark:text-blue-400" />
                 </div>
-                <p className="text-lg font-medium">Ready to generate</p>
-                <p className="text-sm">
-                  Fill out the form and click generate to create your cover letter
+                <h3 className="text-xl font-semibold mb-2">Ready to Generate</h3>
+                <p className="text-muted-foreground max-w-sm mb-4">
+                  Fill out the form and click generate to create your personalized cover letter.
                 </p>
-              </div>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground bg-gray-100 dark:bg-gray-800 px-4 py-2 rounded-full">
+                  <Sparkles className="w-4 h-4 text-yellow-500" />
+                  <span>Powered by Advanced AI</span>
+                </div>
+              </motion.div>
             )}
           </CardContent>
         </Card>
-      </div>
+      </motion.div>
     </div>
   );
 }

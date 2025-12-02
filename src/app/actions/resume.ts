@@ -1,10 +1,20 @@
-"use server"
+"use server";
 
-import { db } from "@/lib/dizzle/client"
-import { resume } from "@/lib/dizzle/schema"
-import { eq, desc } from "drizzle-orm"
+import { db } from "@/lib/dizzle/client";
+import { resume } from "@/lib/dizzle/schema";
+import { eq, desc } from "drizzle-orm";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY!;
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+
+// Validate that the API key is set
+if (!GEMINI_API_KEY) {
+    console.error("GEMINI_API_KEY is not set in environment variables!");
+    throw new Error("GEMINI_API_KEY is not configured. Please check your environment variables.");
+}
+
+const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
 export async function analyzeResume(data: {
     userId: string,
@@ -12,6 +22,12 @@ export async function analyzeResume(data: {
     resumeText: string,
     jobDescription?: string
 }) {
+    console.log("=== SERVER: analyzeResume called ===");
+    console.log("User ID:", data.userId);
+    console.log("File name:", data.fileName);
+    console.log("Resume text length:", data.resumeText.length);
+    console.log("Has job description:", !!data.jobDescription);
+
     const prompt = `You are an expert ATS (Applicant Tracking System) analyzer and career coach. Analyze the following resume ${data.jobDescription ? 'against the job description' : ''}.
     
     Resume Content:
@@ -42,67 +58,55 @@ export async function analyzeResume(data: {
     
     ${!data.jobDescription ? 'Since no job description is provided, focus on general resume quality, ATS compatibility, and professional presentation.' : ''}`;
 
-    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-        method: "POST",
-        headers: {
-            "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
-            "Content-Type": "application/json",
-            "HTTP-Referer": "https://uplift.app",
-            "X-Title": "Uplift Resume Analyzer"
-        },
-        body: JSON.stringify({
-            model: "deepseek/deepseek-r1-distill-qwen-32b",
-            messages: [
-                {
-                    role: "user",
-                    content: prompt
-                }
-            ],
-            temperature: 0.7,
-            max_tokens: 4000
-        })
-    });
-
-    if (!response.ok) {
-        const errorText = await response.text();
-        console.error("OpenRouter API error:", errorText);
-        throw new Error(`Failed to analyze resume: ${response.statusText}`);
-    }
-
-    const result = await response.json();
-    const text = result.choices[0]?.message?.content || "";
-    
-    // Clean up markdown code blocks if present
-    let jsonStr = text.replace(/```json/g, '').replace(/```/g, '').trim();
-    
-    // Extract JSON from response
-    const firstBrace = jsonStr.indexOf('{');
-    const lastBrace = jsonStr.lastIndexOf('}');
-    
-    if (firstBrace !== -1 && lastBrace !== -1) {
-        jsonStr = jsonStr.substring(firstBrace, lastBrace + 1);
-    }
-    
-    let analysis;
     try {
-        analysis = JSON.parse(jsonStr);
-    } catch (e) {
-        console.error("Failed to parse AI response:", text);
-        throw new Error("Failed to analyze resume");
-    }
+        const result = await model.generateContent(prompt);
+        const response = result.response;
+        const text = response.text();
+        console.log("Gemini Response:", text);
+        
+        // Clean up markdown code blocks if present
+        let jsonStr = text.replace(/```json/g, '').replace(/```/g, '').trim();
+        
+        // Extract JSON from response
+        const firstBrace = jsonStr.indexOf('{');
+        const lastBrace = jsonStr.lastIndexOf('}');
+        
+        if (firstBrace !== -1 && lastBrace !== -1) {
+            jsonStr = jsonStr.substring(firstBrace, lastBrace + 1);
+        }
+        
+        let analysis;
+        try {
+            analysis = JSON.parse(jsonStr);
+            console.log("Successfully parsed AI response");
+        } catch (e) {
+            console.error("Failed to parse AI response as JSON");
+            console.error("Cleaned JSON string:", jsonStr);
+            console.error("Parse error:", e);
+            throw new Error("Failed to parse AI analysis. Please try again.");
+        }
 
-    // Save resume analysis to database
-    const [newResume] = await db.insert(resume).values({
-        id: crypto.randomUUID(),
-        userId: data.userId,
-        fileName: data.fileName,
-        content: data.resumeText,
-        jobDescription: data.jobDescription,
-        atsScore: analysis.atsScore,
-        analysis: analysis
-    }).returning();
-    
-    return newResume;
+        // Save resume analysis to database
+        console.log("Saving to database...");
+        const [newResume] = await db.insert(resume).values({
+            id: crypto.randomUUID(),
+            userId: data.userId,
+            fileName: data.fileName,
+            content: data.resumeText,
+            jobDescription: data.jobDescription,
+            atsScore: analysis.atsScore,
+            analysis: analysis
+        }).returning();
+        
+        console.log("Resume analysis saved with ID:", newResume.id);
+        return newResume;
+    } catch (error: any) {
+        console.error("=== SERVER ERROR in analyzeResume ===");
+        console.error("Error type:", error.constructor?.name);
+        console.error("Error message:", error.message);
+        console.error("Error stack:", error.stack);
+        throw error;
+    }
 }
 
 export async function getUserResumes(userId: string) {

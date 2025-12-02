@@ -3,9 +3,51 @@
 import { db } from "@/lib/dizzle/client"
 import { assessment } from "@/lib/dizzle/schema"
 import { eq, desc } from "drizzle-orm"
-import { GoogleGenerativeAI } from "@google/generative-ai"
+// import { GoogleGenerativeAI } from "@google/generative-ai"
+const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+// const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+
+async function generateContentWithOpenRouter(prompt: string) {
+  // Only validate API key when actually making the request
+  if (!OPENROUTER_API_KEY) {
+    console.warn("OPENROUTER_API_KEY is not set in environment variables - using fallback");
+    // For demo purposes, we can return mock data
+    return { response: { text: () => "[]" } };
+  }
+  
+  const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
+      "Content-Type": "application/json",
+      "HTTP-Referer": "https://uplift.app",
+      "X-Title": "Uplift Assessment Generator"
+    },
+    body: JSON.stringify({
+      model: "x-ai/grok-4.1-fast:free",
+      messages: [
+        {
+          role: "user",
+          content: prompt
+        }
+      ],
+      temperature: 0.7,
+      max_tokens: 4000
+    })
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error("OpenRouter API error response:", errorText);
+    console.error("Response status:", response.status);
+    console.error("Response status text:", response.statusText);
+    throw new Error(`OpenRouter API error (${response.status}): ${response.statusText}. Response: ${errorText}`);
+  }
+
+  const result = await response.json();
+  return { response: { text: () => result.choices[0]?.message?.content || "" } };
+}
 
 export async function createAssessment(data: {
     userId: string,
@@ -13,9 +55,6 @@ export async function createAssessment(data: {
     level: string,
     numberOfQuestions: number
 }) {
-    // Generate questions using Gemini
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-    
     const prompt = `
     Generate exactly ${data.numberOfQuestions} multiple-choice questions for a ${data.level} level assessment on the topic: ${data.topic}.
     
@@ -35,10 +74,10 @@ export async function createAssessment(data: {
     - Return only the JSON array, no other text
     `;
 
-    const result = await model.generateContent(prompt);
+    const result = await generateContentWithOpenRouter(prompt);
     const response = result.response;
     const text = response.text();
-    console.log("Gemini Response:", text); // Debug log
+    console.log("OpenRouter Response:", text); // Debug log
     
     // Clean up markdown code blocks if present
     let jsonStr = text.replace(/```json/g, '').replace(/```/g, '').trim();
@@ -55,7 +94,7 @@ export async function createAssessment(data: {
     try {
         generatedQuestions = JSON.parse(jsonStr);
     } catch (e) {
-        console.error("Failed to parse Gemini response:", text);
+        console.error("Failed to parse OpenRouter response:", text);
         throw new Error("Failed to generate questions: Invalid JSON format");
     }
 
@@ -109,9 +148,6 @@ export async function submitAssessment(assessmentId: string, userAnswers: { [key
     const totalQuestions = updatedQuestions.length;
     const score = (correctCount / totalQuestions) * 100;
 
-    // Generate improvement tip using Gemini
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-    
     const prompt = `
     Based on this assessment result:
     - Topic: ${assessmentData.topic}
@@ -123,7 +159,7 @@ export async function submitAssessment(assessmentId: string, userAnswers: { [key
     Return only the tip text, no formatting.
     `;
 
-    const result = await model.generateContent(prompt);
+    const result = await generateContentWithOpenRouter(prompt);
     const improvementTip = result.response.text().trim();
 
     // Update assessment

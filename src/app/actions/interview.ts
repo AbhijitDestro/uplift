@@ -3,9 +3,50 @@
 import { db } from "@/lib/dizzle/client"
 import { interview, feedback } from "@/lib/dizzle/schema"
 import { eq, desc } from "drizzle-orm"
-import { GoogleGenerativeAI } from "@google/generative-ai"
+// import { GoogleGenerativeAI } from "@google/generative-ai"
+const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+// Validate that the API key is set
+if (!OPENROUTER_API_KEY) {
+    console.error("OPENROUTER_API_KEY is not set in environment variables!");
+    throw new Error("OPENROUTER_API_KEY is not configured. Please check your environment variables.");
+}
+
+// const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+
+async function generateContentWithOpenRouter(prompt: string) {
+  const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
+      "Content-Type": "application/json",
+      "HTTP-Referer": "https://uplift.app",
+      "X-Title": "Uplift Interview Feedback Generator"
+    },
+    body: JSON.stringify({
+      model: "qwen/qwen3-235b-a22b:free",
+      messages: [
+        {
+          role: "user",
+          content: prompt
+        }
+      ],
+      temperature: 0.7,
+      max_tokens: 4000
+    })
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error("OpenRouter API error response:", errorText);
+    console.error("Response status:", response.status);
+    console.error("Response status text:", response.statusText);
+    throw new Error(`OpenRouter API error (${response.status}): ${response.statusText}. Response: ${errorText}`);
+  }
+
+  const result = await response.json();
+  return { response: { text: () => result.choices[0]?.message?.content || "" } };
+}
 
 export async function createInterview(data: {
     userId: string,
@@ -48,9 +89,6 @@ export async function generateFeedback(interviewId: string, transcript: any[]) {
         .set({ transcript, status: "completed" })
         .where(eq(interview.id, interviewId));
 
-    // 2. Generate feedback with Gemini
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-    
     const interviewData = await getInterview(interviewId);
     
     const prompt = `
@@ -78,7 +116,7 @@ export async function generateFeedback(interviewId: string, transcript: any[]) {
     Do not include markdown formatting like \`\`\`json. Just return the raw JSON string.
     `;
 
-    const result = await model.generateContent(prompt);
+    const result = await generateContentWithOpenRouter(prompt);
     const response = result.response;
     const text = response.text();
     
@@ -89,7 +127,7 @@ export async function generateFeedback(interviewId: string, transcript: any[]) {
     try {
         feedbackData = JSON.parse(jsonStr);
     } catch (e) {
-        console.error("Failed to parse Gemini response:", text);
+        console.error("Failed to parse OpenRouter response:", text);
         throw new Error("Failed to generate feedback");
     }
 

@@ -21,11 +21,7 @@ export function Footer() {
                     <div>
                         <h3 className="font-semibold mb-4">Product</h3>
                         <ul className="space-y-2 text-sm text-muted-foreground">
-                            <li>
-                                <Link href="#" className="hover:text-foreground">
-                                    Resume Builder
-                                </Link>
-                            </li>
+
                             <li>
                                 <Link href="#" className="hover:text-foreground">
                                     Cover Letter

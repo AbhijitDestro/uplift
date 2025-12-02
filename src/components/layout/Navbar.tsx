@@ -63,7 +63,7 @@ export function Navbar() {
                         <ThemeToggle />
                         <Link
                             href="/sign-up"
-                            className="bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-full text-sm font-medium transition-colors"
+                            className="bg-black text-white hover:bg-black/80 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
                         >
                             Get Started
                         </Link>
@@ -108,7 +108,7 @@ export function Navbar() {
                             <Link
                                 href="/sign-up"
                                 onClick={() => setIsOpen(false)}
-                                className="w-full text-center bg-primary text-primary-foreground hover:bg-primary/90 block px-3 py-2 rounded-md text-base font-medium mt-4"
+                                className="w-full text-center bg-black text-white hover:bg-black/80 block px-3 py-2 rounded-md text-base font-medium mt-4"
                             >
                                 Get Started
                             </Link>

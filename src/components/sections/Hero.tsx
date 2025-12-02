@@ -62,7 +62,7 @@ export function Hero() {
                     >
                         <Link
                             href="/sign-up"
-                            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-primary text-primary-foreground px-8 py-3 rounded-full font-medium hover:bg-primary/90 transition-colors text-lg"
+                            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-black text-white px-8 py-3 rounded-full font-medium hover:bg-black/80 transition-colors text-lg"
                         >
                             Get Started Free
                             <ArrowRight className="h-4 w-4" />
@@ -80,7 +80,7 @@ export function Hero() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.5, delay: 0.4 }}
-                        className="mt-12 flex items-center justify-center gap-8 text-sm text-muted-foreground"
+                        className="mt-6 flex items-center justify-center gap-8 text-sm text-muted-foreground"
                     >
                         <div className="flex items-center gap-2">
                             <CheckCircle2 className="h-4 w-4 text-primary" />

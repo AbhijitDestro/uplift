@@ -1,14 +1,55 @@
 "use server";
 
 import { db } from "@/lib/dizzle/client";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+// import { GoogleGenerativeAI } from "@google/generative-ai";
+const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
+
+// Validate that the API key is set
+if (!OPENROUTER_API_KEY) {
+    console.error("OPENROUTER_API_KEY is not set in environment variables!");
+    throw new Error("OPENROUTER_API_KEY is not configured. Please check your environment variables.");
+}
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { coverLetter, user } from "@/lib/dizzle/schema";
 import { eq, and, desc } from "drizzle-orm";
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
-const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+// const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+// const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+
+async function generateContentWithOpenRouter(prompt: string) {
+  const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
+      "Content-Type": "application/json",
+      "HTTP-Referer": "https://uplift.app",
+      "X-Title": "Uplift Cover Letter Generator"
+    },
+    body: JSON.stringify({
+      model: "x-ai/grok-4.1-fast:free",
+      messages: [
+        {
+          role: "user",
+          content: prompt
+        }
+      ],
+      temperature: 0.7,
+      max_tokens: 4000
+    })
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error("OpenRouter API error response:", errorText);
+    console.error("Response status:", response.status);
+    console.error("Response status text:", response.statusText);
+    throw new Error(`OpenRouter API error (${response.status}): ${response.statusText}. Response: ${errorText}`);
+  }
+
+  const result = await response.json();
+  return { response: { text: () => result.choices[0]?.message?.content || "" } };
+}
 
 export async function generateCoverLetter(data: {
   jobTitle: string;
@@ -61,7 +102,7 @@ Format the letter in clean markdown without any code blocks or extra formatting.
 `;
 
   try {
-    const result = await model.generateContent(prompt);
+    const result = await generateContentWithOpenRouter(prompt);
     const content = result.response.text().trim();
 
     const [newCoverLetter] = await db
@@ -192,7 +233,7 @@ Format the letter in clean markdown without any code blocks or extra formatting.
 `;
 
   try {
-    const result = await model.generateContent(prompt);
+    const result = await generateContentWithOpenRouter(prompt);
     const content = result.response.text().trim();
 
     const [updatedLetter] = await db

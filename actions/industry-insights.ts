@@ -7,7 +7,15 @@ import { eq } from "drizzle-orm";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+
+// Validate that the API key is set
+if (!GEMINI_API_KEY) {
+    console.error("GEMINI_API_KEY is not set in environment variables!");
+    throw new Error("GEMINI_API_KEY is not configured. Please check your environment variables.");
+}
+
+const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
 export const generateAIInsights = async (industry: string, jobTitle?: string) => {

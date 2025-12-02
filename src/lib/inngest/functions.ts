@@ -1,11 +1,52 @@
 import { db } from "@/lib/dizzle/client";
 import { inngest } from "./client";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+// import { GoogleGenerativeAI } from "@google/generative-ai";
+const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
+
+// Validate that the API key is set
+if (!OPENROUTER_API_KEY) {
+    console.error("OPENROUTER_API_KEY is not set in environment variables!");
+    throw new Error("OPENROUTER_API_KEY is not configured. Please check your environment variables.");
+}
 import { industryInsight } from "@/lib/dizzle/schema";
 import { eq } from "drizzle-orm";
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+// const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+// const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+async function generateContentWithOpenRouter(prompt: string) {
+  const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
+      "Content-Type": "application/json",
+      "HTTP-Referer": "https://uplift.app",
+      "X-Title": "Uplift Industry Insights Generator"
+    },
+    body: JSON.stringify({
+      model: "qwen/qwen3-235b-a22b:free",
+      messages: [
+        {
+          role: "user",
+          content: prompt
+        }
+      ],
+      temperature: 0.7,
+      max_tokens: 4000
+    })
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error("OpenRouter API error response:", errorText);
+    console.error("Response status:", response.status);
+    console.error("Response status text:", response.statusText);
+    throw new Error(`OpenRouter API error (${response.status}): ${response.statusText}. Response: ${errorText}`);
+  }
+
+  const result = await response.json();
+  return result.choices[0]?.message?.content || "";
+}
 
 export const generateIndustryInsights = inngest.createFunction(
   { 
@@ -39,21 +80,7 @@ Include at least 5 common roles for salary ranges.
 Growth rate should be a percentage.
 Include at least 5 skills and trends.`;
 
-      const res = await step.ai.wrap(
-        "gemini",
-        async (p) => {
-          return await model.generateContent(p);
-        },
-        prompt
-      );
-
-      const candidate = res.response.candidates?.[0];
-      if (!candidate?.content?.parts?.[0]) {
-        throw new Error(`Failed to generate insights for ${industry}`);
-      }
-
-      const part = candidate.content.parts[0];
-      const text = "text" in part ? part.text : "";
+      const text = await generateContentWithOpenRouter(prompt);
       const cleanedText = text.replace(/```(?:json)?\n?/g, "").trim();
 
       const insights = JSON.parse(cleanedText);

@@ -15,18 +15,20 @@ import {
     ChevronLeft,
     ChevronRight,
     Sparkles,
-    Settings,
     LogOut,
+    Linkedin,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { authClient } from "@/lib/auth-client";
 
 const menuItems = [
     { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
-    { icon: FileText, label: "Resume Analyzer", href: "/resume/analyzer" },
-    { icon: PenTool, label: "Resume Builder", href: "/resume/builder" },
+    { icon: FileText, label: "Resume Analyzer", href: "/resume-analyzer" },
+
     { icon: MessageSquare, label: "Cover Letter", href: "/cover-letter" },
-    { icon: Video, label: "Practice Interviews", href: "/practice-interviews" },
+    { icon: Video, label: "Mock Interview", href: "/mock-interview" },
     { icon: TrendingUp, label: "Industry Insights", href: "/industry-insights" },
+    { icon: Linkedin, label: "LinkedIn Optimizer", href: "/linkedin-optimizer" },
 ];
 
 interface SidebarProps {
@@ -50,6 +52,15 @@ export function Sidebar({ isOpen = false, onClose, onCollapseChange }: SidebarPr
         const newState = !isCollapsed;
         setIsCollapsed(newState);
         onCollapseChange?.(newState);
+    };
+
+    const handleLogout = async () => {
+        try {
+            await authClient.signOut();
+            window.location.href = "/sign-in";
+        } catch (error) {
+            console.error("Logout failed:", error);
+        }
     };
 
     return (
@@ -137,27 +148,12 @@ export function Sidebar({ isOpen = false, onClose, onCollapseChange }: SidebarPr
                     })}
                 </nav>
 
-                {/* Bottom Section */}
-                <div className="p-3 border-t border-white/40 space-y-1">
-                    <Link
-                        href="/settings"
-                        className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-white hover:bg-accent hover:text-foreground transition-colors"
+                {/* Bottom Section - Logout Button Only */}
+                <div className="p-3 border-t border-white/40">
+                    <button 
+                        onClick={handleLogout}
+                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-red-500 hover:bg-red-500/10 transition-colors"
                     >
-                        <Settings className="h-5 w-5 shrink-0" />
-                        <AnimatePresence>
-                            {!isCollapsed && (
-                                <motion.span
-                                    initial={{ opacity: 0, width: 0 }}
-                                    animate={{ opacity: 1, width: "auto" }}
-                                    exit={{ opacity: 0, width: 0 }}
-                                    className="whitespace-nowrap overflow-hidden"
-                                >
-                                    Settings
-                                </motion.span>
-                            )}
-                        </AnimatePresence>
-                    </Link>
-                    <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors">
                         <LogOut className="h-5 w-5 shrink-0" />
                         <AnimatePresence>
                             {!isCollapsed && (
@@ -235,17 +231,12 @@ export function Sidebar({ isOpen = false, onClose, onCollapseChange }: SidebarPr
                                 })}
                             </nav>
 
-                            {/* Bottom Section */}
-                            <div className="p-3 border-t border-border/50 space-y-1">
-                                <Link
-                                    href="/settings"
-                                    onClick={onClose}
-                                    className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+                            {/* Bottom Section - Logout Button Only */}
+                            <div className="p-3 border-t border-border/50">
+                                <button 
+                                    onClick={handleLogout}
+                                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-red-500 hover:bg-red-500/10 transition-colors"
                                 >
-                                    <Settings className="h-5 w-5 shrink-0" />
-                                    <span>Settings</span>
-                                </Link>
-                                <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors">
                                     <LogOut className="h-5 w-5 shrink-0" />
                                     <span>Log out</span>
                                 </button>

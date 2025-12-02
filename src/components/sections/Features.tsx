@@ -4,11 +4,10 @@ import * as React from "react";
 import { motion } from "framer-motion";
 import {
     FileText,
-    PenTool,
     MessageSquare,
     Video,
-    Mic,
     TrendingUp,
+    Linkedin,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -21,14 +20,7 @@ const features = [
         color: "text-blue-500",
         bg: "bg-blue-500/10",
     },
-    {
-        title: "Resume Tailor & Builder",
-        description:
-            "Create professional resumes tailored to specific job descriptions in seconds.",
-        icon: PenTool,
-        color: "text-purple-500",
-        bg: "bg-purple-500/10",
-    },
+
     {
         title: "Cover Letter Generator",
         description:
@@ -46,13 +38,14 @@ const features = [
         bg: "bg-orange-500/10",
     },
     {
-        title: "Voice Interview",
+        title: "LinkedIn Optimizer",
         description:
-            "Improve your communication skills with real-time voice feedback and analysis.",
-        icon: Mic,
-        color: "text-green-500",
-        bg: "bg-green-500/10",
+            "Stand out to recruiters with an AI-optimized headline and summary.",
+        icon: Linkedin,
+        color: "text-blue-600",
+        bg: "bg-blue-600/10",
     },
+
     {
         title: "Industry Insights",
         description:
