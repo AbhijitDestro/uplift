@@ -13,8 +13,14 @@ import {
     Clock,
     CheckCircle2,
     Linkedin,
+    BarChart3,
+    Trophy,
 } from "lucide-react";
 import Link from "next/link";
+import { authClient } from "@/lib/auth-client";
+import { getDashboardStats } from "@/app/actions/dashboard";
+import { useEffect, useState } from "react";
+import { formatDistanceToNow } from "date-fns";
 
 const quickActions = [
     {
@@ -54,38 +60,24 @@ const quickActions = [
         icon: TrendingUp,
         title: "Industry Insights",
         description: "Stay ahead with market trends",
-        href: "/insights",
+        href: "/industry-insights",
         color: "text-yellow-500",
         bg: "bg-yellow-500/10",
     },
 ];
 
-const recentActivity = [
-    {
-        title: "Resume analyzed",
-        description: "Software Engineer Resume.pdf",
-        time: "2 hours ago",
-        icon: FileText,
-    },
-    {
-        title: "Cover letter generated",
-        description: "Google Application",
-        time: "1 day ago",
-        icon: MessageSquare,
-    },
-    {
-        title: "Mock interview completed",
-        description: "Technical Interview Practice",
-        time: "2 days ago",
-        icon: Video,
-    },
-];
-
-import { authClient } from "@/lib/auth-client";
-
 export default function DashboardPage() {
     const { data: session } = authClient.useSession();
     const router = useRouter();
+    const [stats, setStats] = useState({
+        resumeAnalyzed: 0,
+        coverLettersCreated: 0,
+        interviewsTaken: 0,
+        averageScore: 0,
+        highestScore: 0,
+        lastIndustryInsightUpdate: null as Date | null,
+    });
+    const [loading, setLoading] = useState(true);
 
     React.useEffect(() => {
         if (session === null) { // session is null when not authenticated, undefined when loading
@@ -93,11 +85,40 @@ export default function DashboardPage() {
         }
     }, [session, router]);
 
+    useEffect(() => {
+        const fetchStats = async () => {
+            if (session?.user?.id) {
+                try {
+                    const data = await getDashboardStats();
+                    setStats(data);
+                } catch (error) {
+                    console.error("Failed to fetch dashboard stats:", error);
+                } finally {
+                    setLoading(false);
+                }
+            }
+        };
+
+        fetchStats();
+    }, [session?.user?.id]);
+
     if (!session) {
         return <div>Loading...</div>; // Or a skeleton loader
     }
 
     const userName = session.user.name;
+
+    // Format recent activity based on actual data
+    const recentActivity = [];
+    
+    if (stats.lastIndustryInsightUpdate) {
+        recentActivity.push({
+            title: "Industry insights updated",
+            description: "Latest market trends and salary data",
+            time: formatDistanceToNow(new Date(stats.lastIndustryInsightUpdate), { addSuffix: true }),
+            icon: TrendingUp,
+        });
+    }
 
     return (
         <div className="max-w-7xl mx-auto space-y-8">
@@ -119,10 +140,10 @@ export default function DashboardPage() {
             {/* Stats Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {[
-                    { label: "Resumes Created", value: "12", icon: FileText, color: "text-blue-500" },
-                    { label: "Applications", value: "28", icon: CheckCircle2, color: "text-green-500" },
-                    { label: "Interviews", value: "8", icon: Video, color: "text-purple-500" },
-                    { label: "Hours Practiced", value: "24", icon: Clock, color: "text-orange-500" },
+                    { label: "Resumes Analyzed", value: stats.resumeAnalyzed, icon: FileText, color: "text-blue-500" },
+                    { label: "Cover Letters", value: stats.coverLettersCreated, icon: MessageSquare, color: "text-green-500" },
+                    { label: "Interviews Taken", value: stats.interviewsTaken, icon: Video, color: "text-purple-500" },
+                    { label: "Avg Score", value: `${stats.averageScore}%`, icon: BarChart3, color: "text-orange-500" },
                 ].map((stat, index) => (
                     <motion.div
                         key={stat.label}
@@ -139,6 +160,21 @@ export default function DashboardPage() {
                         <div className="text-sm text-muted-foreground">{stat.label}</div>
                     </motion.div>
                 ))}
+                
+                {/* Highest Score Card */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.15 }}
+                    className="relative bg-background/30 backdrop-blur-xl border border-white/10 rounded-xl p-6 hover:shadow-2xl transition-all before:absolute before:inset-0 before:rounded-xl before:bg-linear-to-br before:from-white/5 before:to-transparent before:pointer-events-none"
+                >
+                    <div className="flex items-center justify-between mb-2">
+                        <Trophy className="h-5 w-5 text-yellow-500" />
+                        <Sparkles className="h-4 w-4 text-muted-foreground" />
+                    </div>
+                    <div className="text-2xl font-bold mb-1">{stats.highestScore}%</div>
+                    <div className="text-sm text-muted-foreground">Highest Score</div>
+                </motion.div>
             </div>
 
             {/* Quick Actions */}
@@ -195,27 +231,37 @@ export default function DashboardPage() {
                     transition={{ duration: 0.5, delay: 0.4 }}
                     className="relative bg-background/30 backdrop-blur-xl border border-white/10 rounded-xl divide-y divide-white/5 before:absolute before:inset-0 before:rounded-xl before:bg-linear-to-br before:from-white/5 before:to-transparent before:pointer-events-none"
                 >
-                    {recentActivity.map((activity, index) => (
-                        <div
-                            key={index}
-                            className="p-4 hover:bg-accent/50 transition-colors cursor-pointer"
-                        >
-                            <div className="flex items-start gap-4">
-                                <div className="bg-primary/10 p-2 rounded-lg shrink-0">
-                                    <activity.icon className="h-5 w-5 text-primary" />
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                    <h4 className="font-medium mb-1">{activity.title}</h4>
-                                    <p className="text-sm text-muted-foreground truncate">
-                                        {activity.description}
-                                    </p>
-                                </div>
-                                <div className="text-xs text-muted-foreground shrink-0">
-                                    {activity.time}
+                    {recentActivity.length > 0 ? (
+                        recentActivity.map((activity, index) => (
+                            <div
+                                key={index}
+                                className="p-4 hover:bg-accent/50 transition-colors cursor-pointer"
+                            >
+                                <div className="flex items-start gap-4">
+                                    <div className="bg-primary/10 p-2 rounded-lg shrink-0">
+                                        <activity.icon className="h-5 w-5 text-primary" />
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <h4 className="font-medium mb-1">{activity.title}</h4>
+                                        <p className="text-sm text-muted-foreground truncate">
+                                            {activity.description}
+                                        </p>
+                                    </div>
+                                    <div className="text-xs text-muted-foreground shrink-0">
+                                        {activity.time}
+                                    </div>
                                 </div>
                             </div>
+                        ))
+                    ) : (
+                        <div className="p-8 text-center">
+                            <TrendingUp className="mx-auto h-12 w-12 text-muted-foreground/50 mb-4" />
+                            <h3 className="text-lg font-medium mb-1">No recent activity</h3>
+                            <p className="text-sm text-muted-foreground">
+                                Your industry insights will appear here when updated
+                            </p>
                         </div>
-                    ))}
+                    )}
                 </motion.div>
             </div>
         </div>

@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
-import { Bell, Search, Menu, User, LogOut, ChevronDown } from "lucide-react";
+import { Search, Menu, User, LogOut, ChevronDown } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
@@ -67,11 +67,6 @@ export function DashboardNavbar({ onMenuClick }: { onMenuClick?: () => void }) {
             </div>
 
             <div className="flex items-center gap-4">
-                <button className="relative p-2 text-muted-foreground hover:text-foreground rounded-full hover:bg-accent transition-colors">
-                    <Bell className="h-5 w-5" />
-                    <span className="absolute top-1.5 right-1.5 h-2 w-2 bg-red-500 rounded-full border-2 border-background" />
-                </button>
-
                 <ThemeToggle />
 
                 {/* User Avatar Dropdown */}
