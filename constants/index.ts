@@ -1,5 +1,40 @@
 import { z } from "zod";
-import { CreateAssistantDTO } from "@ai-sdk/core";
+
+// Define the type structure directly instead of importing from @ai-sdk/core
+interface TranscriberConfig {
+  provider: string;
+  model: string;
+  language: string;
+}
+
+interface VoiceConfig {
+  provider: string;
+  voiceId: string;
+  stability: number;
+  similarityBoost: number;
+  speed: number;
+  style: number;
+  useSpeakerBoost: boolean;
+}
+
+interface Message {
+  role: string;
+  content: string;
+}
+
+interface ModelConfig {
+  provider: string;
+  model: string;
+  messages: Message[];
+}
+
+interface CreateAssistantDTO {
+  name: string;
+  firstMessage: string;
+  transcriber: TranscriberConfig;
+  voice: VoiceConfig;
+  model: ModelConfig;
+}
 
 export const interviewer: CreateAssistantDTO = {
   name: "Interviewer",
@@ -40,7 +75,7 @@ Be professional, yet warm and welcoming:
 Use official yet friendly language.
 Keep responses concise and to the point (like in a real voice interview).
 Avoid robotic phrasing—sound natural and conversational.
-Answer the candidate’s questions professionally:
+Answer the candidate's questions professionally:
 
 If asked about the role, company, or expectations, provide a clear and relevant answer.
 If unsure, redirect the candidate to HR for more details.
