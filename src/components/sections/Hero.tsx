@@ -5,7 +5,6 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight, CheckCircle2, PlayCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
-import Image from "next/image";
 
 export function Hero() {
     return (
@@ -98,7 +97,7 @@ export function Hero() {
                         transition={{ duration: 0.5, delay: 0.5 }}
                         className="mt-14 w-full"
                     >
-                        <Image src="/images/banner.jpg" alt="banner" width={1600} height={900} className="w-full h-full object-cover rounded-2xl" />
+                        <img src="/images/banner.jpg" alt="banner" className="w-full h-full object-cover rounded-2xl" />
                     </motion.div>
                 </div>
             </div>
