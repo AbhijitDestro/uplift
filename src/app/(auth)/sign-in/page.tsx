@@ -17,24 +17,26 @@ export default function SignInPage() {
         event.preventDefault();
         setIsLoading(true);
 
-        await authClient.signIn.email({
-            email,
-            password,
-            callbackURL: "/dashboard",
-        }, {
-            onRequest: () => {
-                setIsLoading(true);
-            },
-            onSuccess: () => {
-                router.push("/dashboard");
-            },
-            onError: (ctx) => {
-                console.error("Sign in error:", ctx);
-                const errorMessage = ctx.error?.message || "Something went wrong. Please check the console.";
-                alert(errorMessage);
+        try {
+            const response = await authClient.signIn.email({
+                email,
+                password,
+                callbackURL: "/dashboard",
+            });
+
+            if (response.error) {
+                console.error("Sign in error:", response.error);
+                alert(response.error.message || "Something went wrong. Please try again.");
                 setIsLoading(false);
+            } else {
+                // Successful sign-in, redirect to dashboard
+                router.push("/dashboard");
             }
-        });
+        } catch (error) {
+            console.error("Sign in error:", error);
+            alert("Something went wrong. Please try again.");
+            setIsLoading(false);
+        }
     }
 
     async function signInWithGithub() {

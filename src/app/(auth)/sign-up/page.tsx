@@ -18,25 +18,27 @@ export default function SignUpPage() {
         event.preventDefault();
         setIsLoading(true);
 
-        await authClient.signUp.email({
-            email,
-            password,
-            name,
-            callbackURL: "/dashboard",
-        }, {
-            onRequest: () => {
-                setIsLoading(true);
-            },
-            onSuccess: () => {
-                router.push("/dashboard");
-            },
-            onError: (ctx) => {
-                console.error("Sign up error:", ctx);
-                const errorMessage = ctx.error?.message || "Something went wrong. Please check the console.";
-                alert(errorMessage);
+        try {
+            const response = await authClient.signUp.email({
+                email,
+                password,
+                name,
+                callbackURL: "/dashboard",
+            });
+
+            if (response.error) {
+                console.error("Sign up error:", response.error);
+                alert(response.error.message || "Something went wrong. Please try again.");
                 setIsLoading(false);
+            } else {
+                // Successful sign-up, redirect to dashboard
+                router.push("/dashboard");
             }
-        });
+        } catch (error) {
+            console.error("Sign up error:", error);
+            alert("Something went wrong. Please try again.");
+            setIsLoading(false);
+        }
     }
 
     async function signUpWithGithub() {
