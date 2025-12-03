@@ -23,7 +23,7 @@ export const auth = betterAuth({
         provider: "pg", // or "mysql", "sqlite"
         schema: schema
     }),
-    baseURL: process.env.NEXT_PUBLIC_BASE_URL || process.env.BETTER_AUTH_URL || "http://localhost:3000",
+    baseURL: process.env.NEXT_PUBLIC_BASE_URL || process.env.BETTER_AUTH_URL || "https://uplift-self.vercel.app",
     account: {
         accountLinking: {
             enabled: true,
@@ -35,7 +35,7 @@ export const auth = betterAuth({
     },
     advanced: {
         defaultCookieAttributes: {
-            secure: process.env.NODE_ENV === "production",
+            secure: true, // Always secure for deployed app
             sameSite: "lax",
             path: "/",
         }
