@@ -5,22 +5,30 @@ import { db } from "./dizzle/client"; // your drizzle instance
 import * as schema from "./dizzle/schema";
 
 export const auth = betterAuth({
-     emailAndPassword: { 
-    enabled: true, 
-  }, 
-  socialProviders: { 
-    github: { 
-      clientId: process.env.GITHUB_CLIENT_ID as string, 
-      clientSecret: process.env.GITHUB_CLIENT_SECRET as string, 
+    emailAndPassword: { 
+        enabled: true, 
     }, 
-    google: { 
-      clientId: process.env.GOOGLE_CLIENT_ID as string, 
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string, 
+    socialProviders: { 
+        github: { 
+            clientId: process.env.GITHUB_CLIENT_ID || "", 
+            clientSecret: process.env.GITHUB_CLIENT_SECRET || "", 
+        }, 
+        google: { 
+            clientId: process.env.GOOGLE_CLIENT_ID || "", 
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET || "", 
+        }, 
     }, 
-  }, 
     database: drizzleAdapter(db, {
         provider: "pg", // or "mysql", "sqlite"
         schema: schema
     }),
-    baseURL: process.env.NEXT_PUBLIC_BASE_URL,
+    baseURL: process.env.NEXT_PUBLIC_BASE_URL || process.env.BETTER_AUTH_URL || "http://localhost:3000",
+    emailVerification: {
+        sendOnSignUp: true,
+    },
+    account: {
+        accountLinking: {
+            enabled: true,
+        }
+    }
 });
