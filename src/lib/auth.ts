@@ -6,7 +6,8 @@ import * as schema from "./dizzle/schema";
 
 export const auth = betterAuth({
     emailAndPassword: { 
-        enabled: true, 
+        enabled: true,
+        requireEmailVerification: false,
     }, 
     socialProviders: { 
         github: { 
@@ -23,9 +24,6 @@ export const auth = betterAuth({
         schema: schema
     }),
     baseURL: process.env.NEXT_PUBLIC_BASE_URL || process.env.BETTER_AUTH_URL || "https://uplift-self.vercel.app",
-    emailVerification: {
-        sendOnSignUp: true,
-    },
     account: {
         accountLinking: {
             enabled: true,
