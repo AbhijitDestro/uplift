@@ -99,7 +99,7 @@ export function Hero() {
                         className="mt-14 w-full"
                     >
                         <Image 
-                            src="https://i.ibb.co/d4RrG4G/banner.jpg" 
+                            src="https://i.ibb.co/XxqbSxSF/banner.jpg" 
                             alt="banner" 
                             width={1600} 
                             height={900} 
