@@ -92,11 +92,23 @@ export async function getIndustryInsights() {
     where: eq(industryInsight.industry, userProfile.industryName),
   });
 
+  // Check if insights exist and are still valid (not outdated)
   if (existingInsights) {
-    return existingInsights;
+    const now = new Date();
+    const nextUpdate = new Date(existingInsights.nextUpdate);
+    
+    // If the insights are still valid (next update time hasn't passed), return them
+    if (now < nextUpdate) {
+      return existingInsights;
+    }
+    
+    // If insights are outdated, delete them and generate fresh ones
+    await db
+      .delete(industryInsight)
+      .where(eq(industryInsight.industry, userProfile.industryName));
   }
 
-  // If no insights exist, generate them
+  // If no insights exist or they were outdated and deleted, generate them
   const insights = await generateAIInsights(
     userProfile.industryName,
     userProfile.jobTitle || undefined
@@ -108,7 +120,8 @@ export async function getIndustryInsights() {
       id: crypto.randomUUID(),
       industry: userProfile.industryName,
       ...insights,
-      nextUpdate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      lastUpdated: new Date(),
+      nextUpdate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // Update weekly
     })
     .returning();
 
@@ -151,7 +164,8 @@ export async function refreshIndustryInsights() {
       id: crypto.randomUUID(),
       industry: userProfile.industryName,
       ...insights,
-      nextUpdate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      lastUpdated: new Date(),
+      nextUpdate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // Update weekly
     })
     .returning();
 
