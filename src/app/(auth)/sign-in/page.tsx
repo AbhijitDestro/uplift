@@ -29,7 +29,8 @@ export default function SignInPage() {
                 alert(response.error.message || "Something went wrong. Please try again.");
                 setIsLoading(false);
             } else {
-                // Successful sign-in, redirect to dashboard
+                // Manual redirect to dashboard after successful sign in
+                console.log("Sign in successful:", response);
                 router.push("/dashboard");
             }
         } catch (error) {

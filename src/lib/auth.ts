@@ -23,10 +23,21 @@ export const auth = betterAuth({
         provider: "pg", // or "mysql", "sqlite"
         schema: schema
     }),
-    baseURL: process.env.NEXT_PUBLIC_BASE_URL || process.env.BETTER_AUTH_URL || "https://uplift-self.vercel.app",
+    baseURL: process.env.NEXT_PUBLIC_BASE_URL || process.env.BETTER_AUTH_URL || "http://localhost:3000",
     account: {
         accountLinking: {
             enabled: true,
+        }
+    },
+    callbacks: {
+        afterSignIn: "/dashboard",
+        afterSignUp: "/dashboard"
+    },
+    advanced: {
+        defaultCookieAttributes: {
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
+            path: "/",
         }
     }
 });

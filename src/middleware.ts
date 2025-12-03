@@ -2,8 +2,9 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 export async function middleware(request: NextRequest) {
-  const sessionCookie = request.cookies.get("better-auth.session_token");
-  const isAuth = !!sessionCookie;
+  // Check for session token in cookies
+  const sessionToken = request.cookies.get("session_token") || request.cookies.get("better-auth.session_token");
+  const isAuth = !!sessionToken;
   const { pathname } = request.nextUrl;
 
   // Define public routes

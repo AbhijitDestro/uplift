@@ -31,7 +31,8 @@ export default function SignUpPage() {
                 alert(response.error.message || "Something went wrong. Please try again.");
                 setIsLoading(false);
             } else {
-                // Successful sign-up, redirect to dashboard
+                // Manual redirect to dashboard after successful sign up
+                console.log("Sign up successful:", response);
                 router.push("/dashboard");
             }
         } catch (error) {
