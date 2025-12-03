@@ -2,10 +2,10 @@
 
 import * as React from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { motion } from "framer-motion";
 import { ArrowRight, CheckCircle2, PlayCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 
 export function Hero() {
     return (
@@ -101,10 +101,10 @@ export function Hero() {
                         <Image 
                             src="/images/banner.jpg" 
                             alt="banner" 
-                            width={1200}
-                            height={600}
+                            width={1600} 
+                            height={900} 
                             className="w-full h-full object-cover rounded-2xl"
-                            priority
+                            unoptimized={true}
                         />
                     </motion.div>
                 </div>
