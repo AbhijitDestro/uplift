@@ -67,7 +67,7 @@ const quickActions = [
 ];
 
 export default function DashboardPage() {
-    const { data: session } = authClient.useSession();
+    const { data: session, isPending } = authClient.useSession();
     const router = useRouter();
     const [stats, setStats] = useState({
         resumeAnalyzed: 0,
@@ -80,10 +80,11 @@ export default function DashboardPage() {
     const [loading, setLoading] = useState(true);
 
     React.useEffect(() => {
-        if (session === null) { // session is null when not authenticated, undefined when loading
+        // More robust session checking
+        if (!isPending && session === null) { // session is null when not authenticated, undefined when loading
             router.push("/sign-in");
         }
-    }, [session, router]);
+    }, [session, isPending, router]);
 
     useEffect(() => {
         const fetchStats = async () => {

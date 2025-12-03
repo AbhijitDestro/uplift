@@ -15,6 +15,7 @@ export default function SignInPage() {
 
     async function onSubmit(event: React.SyntheticEvent) {
         event.preventDefault();
+        event.stopPropagation(); // Add this to ensure the event doesn't bubble up
         setIsLoading(true);
 
         try {
@@ -32,6 +33,7 @@ export default function SignInPage() {
                 // Manual redirect to dashboard after successful sign in
                 console.log("Sign in successful:", response);
                 router.push("/dashboard");
+                router.refresh(); // Add this to ensure the router state is updated
             }
         } catch (error) {
             console.error("Sign in error:", error);

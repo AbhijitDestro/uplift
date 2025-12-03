@@ -38,6 +38,10 @@ export const auth = betterAuth({
             secure: true, // Always secure for deployed app
             sameSite: "lax",
             path: "/",
+        },
+        session: {
+            expiresIn: 60 * 60 * 24 * 7, // 7 days
+            updateAge: 60 * 60 * 24, // 1 day
         }
     }
 });

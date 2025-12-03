@@ -20,6 +20,11 @@ export async function middleware(request: NextRequest) {
 
   // If user is NOT authenticated and tries to access a private route, redirect to sign-in
   if (!isAuth && !isPublicRoute) {
+    // Special case for root path - redirect to sign-in
+    if (pathname === "/") {
+      return NextResponse.redirect(new URL("/sign-in", request.url));
+    }
+    // For all other private routes, redirect to sign-in
     return NextResponse.redirect(new URL("/sign-in", request.url));
   }
 

@@ -16,6 +16,7 @@ export default function SignUpPage() {
 
     async function onSubmit(event: React.SyntheticEvent) {
         event.preventDefault();
+        event.stopPropagation(); // Add this to ensure the event doesn't bubble up
         setIsLoading(true);
 
         try {
@@ -34,6 +35,7 @@ export default function SignUpPage() {
                 // Manual redirect to dashboard after successful sign up
                 console.log("Sign up successful:", response);
                 router.push("/dashboard");
+                router.refresh(); // Add this to ensure the router state is updated
             }
         } catch (error) {
             console.error("Sign up error:", error);
