@@ -99,12 +99,11 @@ export function Hero() {
                         className="mt-14 w-full"
                     >
                         <Image 
-                            src="/images/banner.jpg" 
+                            src="https://i.ibb.co/d4RrG4G/banner.jpg" 
                             alt="banner" 
                             width={1600} 
                             height={900} 
                             className="w-full h-full object-cover rounded-2xl"
-                            unoptimized={true}
                         />
                     </motion.div>
                 </div>
